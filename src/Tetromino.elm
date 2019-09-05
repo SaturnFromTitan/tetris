@@ -16,13 +16,13 @@ type alias Point =
     ( Float, Float )
 
 
-type alias Tetromino =
-    { shape : List Location, block : Block }
-
-
 toPoint : Location -> Point
 toPoint ( m, n ) =
     ( toFloat m * Block.size, toFloat n * Block.size )
+
+
+type alias Tetromino =
+    { shape : List Location, block : Block, pivot : Point }
 
 
 toForm : Tetromino -> Collage msg
@@ -36,14 +36,14 @@ toForm { shape, block } =
                 (toPoint location)
                 form
 
-        forms =
+        mappedForms =
             List.map translate shape
     in
-    group forms
+    group mappedForms
 
 
-rotateLocation : Point -> Float -> Location -> Location
-rotateLocation ( x, y ) angle ( row, col ) =
+rotateAroundPoint : Point -> Float -> Location -> Location
+rotateAroundPoint ( x, y ) angle ( row, col ) =
     let
         rowOrigin =
             toFloat row - x
@@ -63,53 +63,16 @@ rotateLocation ( x, y ) angle ( row, col ) =
     ( (rowRotated + x) |> round, (colRotated + y) |> round )
 
 
-calculatePivot : Tetromino -> Point
-calculatePivot { shape, block } =
-    let
-        compareX func ( x, y ) currentValue =
-            func currentValue x
-
-        compareY func ( x, y ) currentValue =
-            func currentValue y
-
-        -- TODO: the -999 or 999 are a hack. Use a Maybe instead
-        maxRowValue =
-            List.foldr (compareX max) -999 shape |> toFloat
-
-        minRowValue =
-            List.foldr (compareX min) 999 shape |> toFloat
-
-        maxColValue =
-            List.foldr (compareY max) -999 shape |> toFloat
-
-        minColValue =
-            List.foldr (compareY min) 999 shape |> toFloat
-
-        distance x1 x2 =
-            x1 + 1 - x2 |> abs
-
-        maxRowDistance =
-            distance maxRowValue minRowValue
-
-        maxColDistance =
-            distance maxColValue minColValue
-    in
-    ( minRowValue + (maxRowDistance / 2), minColValue + (maxColDistance / 2) )
-
-
 rotate : Tetromino -> Tetromino
-rotate tetromino =
+rotate { shape, block, pivot } =
     let
-        pivot =
-            calculatePivot tetromino
-
         rotateAroundPivot =
-            rotateLocation pivot (degrees 90)
+            rotateAroundPoint pivot (degrees 90)
 
         newShape =
-            List.map rotateAroundPivot tetromino.shape
+            List.map rotateAroundPivot shape
     in
-    Tetromino newShape tetromino.block
+    Tetromino newShape block pivot
 
 
 concatTuples : Location -> String -> String
@@ -129,8 +92,7 @@ displayPoint ( x, y ) =
 
 main : Html msg
 main =
-    -- i |> displayLocations |> Html.text
-    i |> calculatePivot |> displayPoint |> Html.text
+    i |> toForm |> svg
 
 
 
@@ -139,34 +101,55 @@ main =
 
 i : Tetromino
 i =
-    { shape = [ ( 0, 1 ), ( 0, 0 ), ( 0, -1 ), ( 0, -2 ) ], block = Block Color.lightBlue }
+    { shape = [ ( 0, 1 ), ( 0, 0 ), ( 0, -1 ), ( 0, -2 ) ]
+    , block = Block Color.lightBlue
+    , pivot = ( 0.5, -0.5 )
+    }
 
 
 j : Tetromino
 j =
-    { shape = [ ( 0, 1 ), ( 0, 0 ), ( 0, -1 ), ( -1, -1 ) ], block = Block Color.darkBlue }
+    { shape = [ ( 0, 1 ), ( 0, 0 ), ( 0, -1 ), ( -1, -1 ) ]
+    , block = Block Color.darkBlue
+    , pivot = ( 0, 0 )
+    }
 
 
 l : Tetromino
 l =
-    { shape = [ ( 0, 1 ), ( 0, 0 ), ( 0, -1 ), ( 1, -1 ) ], block = Block Color.orange }
+    { shape = [ ( 0, 1 ), ( 0, 0 ), ( 0, -1 ), ( 1, -1 ) ]
+    , block = Block Color.orange
+    , pivot = ( 0, 0 )
+    }
 
 
 o : Tetromino
 o =
-    { shape = [ ( 0, 1 ), ( 0, 0 ), ( 1, 0 ), ( 1, 1 ) ], block = Block Color.yellow }
+    { shape = [ ( 0, 1 ), ( 0, 0 ), ( 1, 0 ), ( 1, 1 ) ]
+    , block = Block Color.yellow
+    , pivot = ( 0, 0 )
+    }
 
 
 s : Tetromino
 s =
-    { shape = [ ( 0, 0 ), ( 1, 0 ), ( 1, 1 ), ( 2, 1 ) ], block = Block Color.lightGreen }
+    { shape = [ ( 0, 0 ), ( 1, 0 ), ( 1, 1 ), ( 2, 1 ) ]
+    , block = Block Color.lightGreen
+    , pivot = ( 0, 0 )
+    }
 
 
 z : Tetromino
 z =
-    { shape = [ ( 0, 1 ), ( 1, 1 ), ( 1, 0 ), ( 2, 0 ) ], block = Block Color.red }
+    { shape = [ ( 0, 1 ), ( 1, 1 ), ( 1, 0 ), ( 2, 0 ) ]
+    , block = Block Color.red
+    , pivot = ( 0, 0 )
+    }
 
 
 t : Tetromino
 t =
-    { shape = [ ( 0, 0 ), ( 1, 0 ), ( 2, 0 ), ( 1, 1 ) ], block = Block Color.purple }
+    { shape = [ ( 0, 0 ), ( 1, 0 ), ( 2, 0 ), ( 1, 1 ) ]
+    , block = Block Color.purple
+    , pivot = ( 0, 0 )
+    }
