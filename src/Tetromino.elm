@@ -6,6 +6,11 @@ import Collage.Render exposing (svg)
 import Color exposing (Color)
 import Html exposing (Html)
 import List
+import Tuple exposing (first, second)
+
+
+
+-- Type aliases
 
 
 type alias Location =
@@ -16,13 +21,25 @@ type alias Point =
     ( Float, Float )
 
 
-toPoint : Location -> Point
-toPoint ( m, n ) =
-    ( toFloat m * Block.size, toFloat n * Block.size )
-
-
 type alias Tetromino =
-    { shape : List Location, block : Block, pivot : Point }
+    { shape : List Location
+    , block : Block
+    , pivot : Point
+    }
+
+
+
+-- converters
+
+
+toPoint : Location -> Point
+toPoint ( r, c ) =
+    ( toFloat r * Block.size, toFloat c * Block.size )
+
+
+toLocation : Point -> Location
+toLocation ( r, c ) =
+    ( round r, round c )
 
 
 toForm : Tetromino -> Collage msg
@@ -32,67 +49,14 @@ toForm { shape, block } =
             Block.toForm block
 
         translate location =
-            shift
+            Collage.shift
                 (toPoint location)
                 form
 
-        mappedForms =
+        forms =
             List.map translate shape
     in
-    group mappedForms
-
-
-rotateAroundPoint : Point -> Float -> Location -> Location
-rotateAroundPoint ( x, y ) angle ( row, col ) =
-    let
-        rowOrigin =
-            toFloat row - x
-
-        colOrigin =
-            toFloat col - y
-
-        ( sinValue, cosValue ) =
-            ( sin angle, cos angle )
-
-        rowRotated =
-            rowOrigin * cosValue - colOrigin * sinValue
-
-        colRotated =
-            rowOrigin * sinValue + colOrigin * cosValue
-    in
-    ( (rowRotated + x) |> round, (colRotated + y) |> round )
-
-
-rotate : Tetromino -> Tetromino
-rotate { shape, block, pivot } =
-    let
-        rotateAroundPivot =
-            rotateAroundPoint pivot (degrees 90)
-
-        newShape =
-            List.map rotateAroundPivot shape
-    in
-    Tetromino newShape block pivot
-
-
-concatTuples : Location -> String -> String
-concatTuples ( x, y ) cV =
-    cV ++ " (" ++ String.fromInt x ++ ", " ++ String.fromInt y ++ ")"
-
-
-displayLocations : Tetromino -> String
-displayLocations tetromino =
-    List.foldr concatTuples "" tetromino.shape
-
-
-displayPoint : Point -> String
-displayPoint ( x, y ) =
-    "(" ++ String.fromFloat x ++ ", " ++ String.fromFloat y ++ ")"
-
-
-main : Html msg
-main =
-    o |> rotate |> rotate |> rotate |> toForm |> svg
+    group forms
 
 
 
@@ -153,3 +117,67 @@ t =
     , block = Block Color.purple
     , pivot = ( 1, 0 )
     }
+
+
+
+-- rotation logic
+
+
+rotateLocation : Point -> Float -> Location -> Location
+rotateLocation ( pivotX, pivotY ) angle ( row, col ) =
+    let
+        rowOrigin =
+            toFloat row - pivotX
+
+        colOrigin =
+            toFloat col - pivotY
+
+        ( sinValue, cosValue ) =
+            ( sin angle, cos angle )
+
+        rowRotated =
+            rowOrigin * cosValue - colOrigin * sinValue
+
+        colRotated =
+            rowOrigin * sinValue + colOrigin * cosValue
+    in
+    toLocation ( rowRotated + pivotX, colRotated + pivotY )
+
+
+rotate : Tetromino -> Tetromino
+rotate tetromino =
+    let
+        rotateAroundPivot =
+            rotateLocation tetromino.pivot (degrees 90)
+
+        newShape =
+            List.map rotateAroundPivot tetromino.shape
+    in
+    { tetromino
+        | shape = newShape
+    }
+
+
+shift : ( Int, Int ) -> Tetromino -> Tetromino
+shift ( shiftX, shiftY ) tetromino =
+    let
+        shiftLocation ( row, col ) =
+            ( row + shiftX, col + shiftX )
+
+        newShape =
+            List.map shiftLocation tetromino.shape
+
+        newPivot =
+            ( first tetromino.pivot + toFloat shiftX
+            , second tetromino.pivot + toFloat shiftY
+            )
+    in
+    { tetromino
+        | shape = newShape
+        , pivot = newPivot
+    }
+
+
+main : Html msg
+main =
+    i |> rotate |> toForm |> svg

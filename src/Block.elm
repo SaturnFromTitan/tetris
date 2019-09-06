@@ -26,11 +26,11 @@ toForm block =
         shape =
             square size
 
-        filledShape =
-            shape |> filled (uniform block.color)
-
         border =
             outlined (solid thick (uniform borderColor)) shape
+
+        filledShape =
+            shape |> filled (uniform block.color)
     in
     group [ filledShape, border ]
 
