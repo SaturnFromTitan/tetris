@@ -30,14 +30,28 @@ emptyBoard =
     Board.new []
 
 
+startingShift : ( Int, Int )
+startingShift =
+    ( 5, 18 )
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pressedKeys = []
       , board = emptyBoard
-      , falling = j
+      , falling = j |> Tetromino.shift startingShift
       }
     , Cmd.none
     )
+
+
+useIfValid : Model -> Model -> Model
+useIfValid current new =
+    if Board.isValid new.falling new.board then
+        new
+
+    else
+        current
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -45,6 +59,9 @@ update msg model =
     case msg of
         KeyboardMsg keyMsg ->
             let
+                useIfValid_ =
+                    useIfValid model
+
                 updatedKeys =
                     Keyboard.update keyMsg model.pressedKeys
 
@@ -58,10 +75,11 @@ update msg model =
                     else
                         model.falling |> Tetromino.shift ( arrows.x, arrows.y )
             in
-            ( { model
-                | pressedKeys = updatedKeys
-                , falling = newFalling
-              }
+            ( useIfValid_
+                { model
+                    | pressedKeys = updatedKeys
+                    , falling = newFalling
+                }
             , Cmd.none
             )
 

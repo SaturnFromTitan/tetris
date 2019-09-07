@@ -1,4 +1,4 @@
-module Board exposing (Board, addBlock, addTetromino, background, backgroundColor, cols, main, new, rows, testBoard, testTetromino, toForm)
+module Board exposing (Board, addBlock, addTetromino, background, backgroundColor, cols, isInBounds, isIntersecting, isValid, main, new, rows, testBoard, testTetromino, toForm)
 
 import Block exposing (..)
 import Collage exposing (..)
@@ -51,18 +51,12 @@ background =
 addBlock : Location -> Block -> Collage msg -> Collage msg
 addBlock ( m, n ) block form =
     let
-        {-
-           offsetX =
-               (toFloat (cols - 1) / 2) * Block.size
-
-           offsetY =
-               (toFloat (rows - 1) / 2) * Block.size
-        -}
         offsetX =
-            0.5 * Block.size
+            (toFloat (cols - 1) / 2) * Block.size
 
         offsetY =
-            0.5 * Block.size
+            (toFloat (rows - 1) / 2)
+                * Block.size
 
         x =
             toFloat m * Block.size
@@ -93,6 +87,31 @@ addTetromino { shape, block } board =
                 |> new
     in
     Dict.union asBoard board
+
+
+isInBounds : Tetromino -> Bool
+isInBounds { shape } =
+    let
+        -- it's intended that there's no validation at the top
+        -- it's needed for starting the block and not critical as the user can't move up
+        checkLocation ( x, y ) =
+            x >= 0 && y >= 0 && x < cols
+    in
+    List.all checkLocation shape
+
+
+isIntersecting : Tetromino -> Board -> Bool
+isIntersecting { shape } board =
+    let
+        checkLocation location =
+            Dict.member location board
+    in
+    List.any checkLocation shape
+
+
+isValid : Tetromino -> Board -> Bool
+isValid tetromino board =
+    isInBounds tetromino && not (isIntersecting tetromino board)
 
 
 
