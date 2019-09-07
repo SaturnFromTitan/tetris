@@ -1,4 +1,4 @@
-module Tetromino exposing (Location, Point, Tetromino, i, j, l, main, o, s, t, toForm, toPoint, z)
+module Tetromino exposing (Location, Point, Tetromino, i, j, l, main, o, rotate, rotateLocation, s, shift, t, toForm, toLocation, toPoint, z)
 
 import Block exposing (Block)
 import Collage exposing (..)
@@ -162,7 +162,7 @@ shift : ( Int, Int ) -> Tetromino -> Tetromino
 shift ( shiftX, shiftY ) tetromino =
     let
         shiftLocation ( row, col ) =
-            ( row + shiftX, col + shiftX )
+            ( row + shiftX, col + shiftY )
 
         newShape =
             List.map shiftLocation tetromino.shape

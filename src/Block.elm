@@ -1,4 +1,4 @@
-module Block exposing (Block, borderColor, main, size, toForm)
+module Block exposing (Block, main, size, toForm)
 
 import Collage exposing (..)
 import Collage.Render exposing (svg)
@@ -15,11 +15,6 @@ size =
     25
 
 
-borderColor : Color
-borderColor =
-    Color.black
-
-
 toForm : Block -> Collage msg
 toForm block =
     let
@@ -27,12 +22,12 @@ toForm block =
             square size
 
         border =
-            outlined (solid thick (uniform borderColor)) shape
+            outlined (solid thin (uniform Color.white)) shape
 
         filledShape =
             shape |> filled (uniform block.color)
     in
-    group [ filledShape, border ]
+    group [ border, filledShape ]
 
 
 main : Html msg
