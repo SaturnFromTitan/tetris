@@ -1,11 +1,13 @@
-module Tetromino exposing (Location, Point, Tetromino, i, j, l, main, o, rotate, rotateLocation, s, shift, t, toForm, toLocation, toPoint, z)
+module Tetromino exposing (Location, Point, Tetromino, bag, i, j, l, main, o, rotate, rotateLocation, s, shift, t, toForm, toLocation, toPoint, z)
 
 import Block exposing (Block)
 import Collage exposing (..)
 import Collage.Render exposing (svg)
 import Color exposing (Color)
-import Html exposing (Html)
+import Html exposing (Html, text)
 import List
+import Random
+import Random.List
 import Tuple exposing (first, second)
 
 
@@ -120,6 +122,30 @@ t =
 
 
 
+-- shuffled bag
+
+
+tetrominos : List Tetromino
+tetrominos =
+    [ i, j, l, o, s, z, t ]
+
+
+bag : Random.Generator (List Tetromino)
+bag =
+    Random.List.shuffle tetrominos
+
+
+main : Html msg
+main =
+    Random.step bag (Random.initialSeed 43)
+        |> first
+        |> List.head
+        |> Maybe.withDefault i
+        |> toForm
+        |> svg
+
+
+
 -- rotation logic
 
 
@@ -176,8 +202,3 @@ shift ( shiftX, shiftY ) tetromino =
         | shape = newShape
         , pivot = newPivot
     }
-
-
-main : Html msg
-main =
-    i |> rotate |> toForm |> svg
