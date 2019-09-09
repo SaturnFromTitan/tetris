@@ -4,23 +4,18 @@ import Board exposing (..)
 import Browser
 import Collage.Render exposing (svg)
 import Html exposing (Html, text)
-import Keyboard exposing (Key(..))
-import Keyboard.Arrows
+import Keyboard exposing (Key(..), RawKey)
+import Keyboard.Arrows exposing (..)
 import Random
 import Tetromino exposing (..)
 
 
 type Msg
-    = KeyboardMsg Keyboard.Msg
+    = KeyDown RawKey
 
 
-{-| We don't need any other info in the model, since we can get everything we
-need using the helpers right in the `view`!
-This way we always have a single source of truth, and we don't need to remember
-to do anything special in the update.
--}
 type alias Model =
-    { pressedKeys : List Key
+    { lastKey : Maybe Key
     , seed : Random.Seed
     , bag : List Tetromino
     , board : Board
@@ -56,7 +51,7 @@ init _ =
         newBag =
             List.drop 1 bag
     in
-    ( { pressedKeys = []
+    ( { lastKey = Nothing
       , bag = newBag
       , seed = newSeed
       , board = emptyBoard
@@ -73,14 +68,7 @@ isValid model =
 
 needSpawn : Model -> Bool
 needSpawn model =
-    let
-        arrows =
-            Keyboard.Arrows.arrows model.pressedKeys
-
-        isDownShift =
-            arrows.y == -1
-    in
-    isDownShift && not (isValid model)
+    model.lastKey == Just Keyboard.ArrowDown && not (isValid model)
 
 
 useIfValid : Model -> Model -> Model
@@ -128,27 +116,31 @@ spawnTetromino model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        KeyboardMsg keyMsg ->
+        KeyDown key ->
             let
-                updatedKeys =
-                    Keyboard.update keyMsg model.pressedKeys
-
-                arrows =
-                    Keyboard.Arrows.arrows updatedKeys
+                arrowKey =
+                    Keyboard.Arrows.arrowKey key
 
                 newFalling =
-                    if arrows.y == 1 then
-                        model.falling |> rotate
+                    case arrowKey of
+                        Just Keyboard.ArrowUp ->
+                            model.falling |> rotate
 
-                    else
-                        model.falling |> Tetromino.shift ( arrows.x, arrows.y )
+                        Just Keyboard.ArrowDown ->
+                            model.falling |> Tetromino.shift ( 0, -1 )
+
+                        Just Keyboard.ArrowLeft ->
+                            model.falling |> Tetromino.shift ( -1, 0 )
+
+                        Just Keyboard.ArrowRight ->
+                            model.falling |> Tetromino.shift ( 1, 0 )
+
+                        _ ->
+                            model.falling
             in
             ( useIfValid
                 model
-                { model
-                    | pressedKeys = updatedKeys
-                    , falling = newFalling
-                }
+                { model | falling = newFalling, lastKey = arrowKey }
             , Cmd.none
             )
 
@@ -160,7 +152,9 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.map KeyboardMsg Keyboard.subscriptions
+    Sub.batch
+        [ Keyboard.downs KeyDown
+        ]
 
 
 main : Program () Model Msg
