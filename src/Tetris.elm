@@ -71,18 +71,6 @@ needSpawn model =
     model.lastKey == Just Keyboard.ArrowDown && not (isValid model)
 
 
-useIfValid : Model -> Model -> Model
-useIfValid current new =
-    if isValid new then
-        new
-
-    else if needSpawn new then
-        spawnTetromino current
-
-    else
-        current
-
-
 spawnTetromino : Model -> Model
 spawnTetromino model =
     let
@@ -111,6 +99,18 @@ spawnTetromino model =
         , seed = seed_
         , bag = newBag
     }
+
+
+useIfValid : Model -> Model -> Model
+useIfValid current new =
+    if isValid new then
+        new
+
+    else if needSpawn new then
+        spawnTetromino current
+
+    else
+        current
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
