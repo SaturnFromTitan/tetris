@@ -101,7 +101,7 @@ s : Tetromino
 s =
     { shape = [ ( 0, 0 ), ( 1, 0 ), ( 1, 1 ), ( 2, 1 ) ]
     , block = Block Color.lightGreen
-    , pivot = ( 1, 1 )
+    , pivot = ( 1, 0 )
     }
 
 

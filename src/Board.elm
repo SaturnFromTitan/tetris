@@ -1,4 +1,4 @@
-module Board exposing (Board, addBlock, addTetromino, background, backgroundColor, cols, isInBounds, isIntersecting, isValid, main, new, rows, testBoard, testTetromino, toForm)
+module Board exposing (Board, addBlock, addTetromino, background, backgroundColor, checkRow, clearLines, clearRow, cols, isInBounds, isIntersecting, isValid, main, new, rows, testBoard, testTetromino, toForm)
 
 import Block exposing (..)
 import Collage exposing (..)
@@ -89,6 +89,10 @@ addTetromino { shape, block } board =
     Dict.union asBoard board
 
 
+
+-- collision
+
+
 isInBounds : Tetromino -> Bool
 isInBounds { shape } =
     let
@@ -115,12 +119,80 @@ isValid tetromino board =
 
 
 
+-- clearing rows
+-- TODO: Refactor row/cols inverse to standard notation
+--   This is due to x, y coordinate system vs row/col view
+
+
+checkRow : Int -> Board -> Bool
+checkRow row board =
+    let
+        blocksOnThisRow =
+            Dict.filter (\( _, r ) _ -> r == row) board
+    in
+    Dict.size blocksOnThisRow == cols
+
+
+clearRow : Int -> Board -> Board
+clearRow row board =
+    let
+        shift ( c, r ) block newBoard =
+            if r < row then
+                Dict.insert ( c, r ) block newBoard
+
+            else if r > row then
+                Dict.insert ( c, r - 1 ) block newBoard
+
+            else
+                newBoard
+    in
+    Dict.foldr shift Dict.empty board
+
+
+clearLines : Board -> Board
+clearLines =
+    let
+        clearLines_ row board =
+            if row >= rows then
+                board
+
+            else if checkRow row board then
+                clearLines_ row (clearRow row board)
+
+            else
+                clearLines_ (row + 1) board
+    in
+    clearLines_ 0
+
+
+
 -- testin'...
 
 
 testBoard : Board
 testBoard =
-    new []
+    new
+        [ ( ( 0, 0 ), Block Color.yellow )
+        , ( ( 1, 0 ), Block Color.yellow )
+        , ( ( 2, 0 ), Block Color.yellow )
+        , ( ( 3, 0 ), Block Color.yellow )
+        , ( ( 4, 0 ), Block Color.yellow )
+        , ( ( 5, 0 ), Block Color.yellow )
+        , ( ( 6, 0 ), Block Color.yellow )
+        , ( ( 7, 0 ), Block Color.yellow )
+        , ( ( 8, 0 ), Block Color.yellow )
+        , ( ( 9, 0 ), Block Color.yellow )
+        , ( ( 0, 1 ), Block Color.blue )
+        , ( ( 1, 1 ), Block Color.blue )
+        , ( ( 2, 1 ), Block Color.blue )
+        , ( ( 3, 1 ), Block Color.blue )
+        , ( ( 4, 1 ), Block Color.blue )
+        , ( ( 5, 1 ), Block Color.blue )
+        , ( ( 6, 1 ), Block Color.blue )
+        , ( ( 7, 1 ), Block Color.blue )
+        , ( ( 8, 1 ), Block Color.blue )
+        , ( ( 9, 1 ), Block Color.blue )
+        ]
 
 
 testTetromino =
@@ -129,4 +201,4 @@ testTetromino =
 
 main : Html msg
 main =
-    testBoard |> addTetromino testTetromino |> toForm |> svg
+    testBoard |> clearLines |> toForm |> svg

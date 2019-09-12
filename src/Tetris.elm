@@ -92,6 +92,7 @@ spawnTetromino model =
 
         newBoard =
             addTetromino model.falling model.board
+                |> clearLines
     in
     { model
         | falling = newFalling
