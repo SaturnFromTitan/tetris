@@ -1,12 +1,15 @@
 module Main exposing (main)
 
+import Block
 import Board exposing (..)
 import Browser
+import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
 import Html exposing (Html, text)
 import Keyboard exposing (Key(..), RawKey)
 import Keyboard.Arrows exposing (..)
 import Random
+import ScoreBoard exposing (..)
 import Tetromino exposing (..)
 
 
@@ -20,6 +23,8 @@ type alias Model =
     , bag : List Tetromino
     , board : Board
     , falling : Tetromino
+    , clearedLines : Int
+    , score : Score
     }
 
 
@@ -56,6 +61,8 @@ init _ =
       , seed = newSeed
       , board = emptyBoard
       , falling = falling |> Tetromino.shift startingShift
+      , clearedLines = 0
+      , score = initialScore
       }
     , Cmd.none
     )
@@ -90,7 +97,7 @@ spawnTetromino model =
         newBag =
             List.drop 1 bag_
 
-        newBoard =
+        ( numClearedLines, newBoard ) =
             addTetromino model.falling model.board
                 |> clearLines
     in
@@ -99,6 +106,8 @@ spawnTetromino model =
         , board = newBoard
         , seed = seed_
         , bag = newBag
+        , score = ScoreBoard.updateScore model.score numClearedLines
+        , clearedLines = model.clearedLines + numClearedLines
     }
 
 
@@ -148,7 +157,24 @@ update msg model =
 
 view : Model -> Html msg
 view model =
-    model.board |> addTetromino model.falling |> Board.toForm |> svg
+    let
+        boardForm =
+            model.board
+                |> addTetromino model.falling
+                |> Board.toForm
+
+        sideBarWidth =
+            6 * round Block.size
+
+        scoreBoardForm =
+            model.score
+                |> ScoreBoard.toForm sideBarWidth
+    in
+    horizontal
+        [ boardForm
+        , scoreBoardForm
+        ]
+        |> svg
 
 
 subscriptions : Model -> Sub Msg

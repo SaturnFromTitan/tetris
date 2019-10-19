@@ -149,20 +149,20 @@ clearRow row board =
     Dict.foldr shift Dict.empty board
 
 
-clearLines : Board -> Board
+clearLines : Board -> ( Int, Board )
 clearLines =
     let
-        clearLines_ row board =
+        clearLines_ lines row board =
             if row >= rows then
-                board
+                ( lines, board )
 
             else if checkRow row board then
-                clearLines_ row (clearRow row board)
+                clearLines_ (lines + 1) row (clearRow row board)
 
             else
-                clearLines_ (row + 1) board
+                clearLines_ lines (row + 1) board
     in
-    clearLines_ 0
+    clearLines_ 0 0
 
 
 
@@ -201,4 +201,4 @@ testTetromino =
 
 main : Html msg
 main =
-    testBoard |> clearLines |> toForm |> svg
+    testBoard |> clearLines |> Tuple.second |> toForm |> svg
