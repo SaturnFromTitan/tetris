@@ -125,14 +125,14 @@ t =
 -- shuffled bag
 
 
-tetrominos : List Tetromino
-tetrominos =
+tetrominoes : List Tetromino
+tetrominoes =
     [ i, j, l, o, s, z, t ]
 
 
 bag : Random.Generator (List Tetromino)
 bag =
-    Random.List.shuffle tetrominos
+    Random.List.shuffle tetrominoes
 
 
 main : Html msg
