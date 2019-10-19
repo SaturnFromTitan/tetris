@@ -25,6 +25,7 @@ initialScore =
 updateScore : Score -> Int -> Score
 updateScore { points, lines } clearedLines =
     let
+        -- Taken from https://tetris.wiki/Scoring#Original_Nintendo_scoring_system
         additionalPoints =
             case clearedLines of
                 1 ->
