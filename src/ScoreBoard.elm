@@ -12,6 +12,7 @@ import String
 type alias Score =
     { points : Int
     , lines : Int
+    , level : Int
     }
 
 
@@ -19,14 +20,15 @@ initialScore : Score
 initialScore =
     { points = 0
     , lines = 0
+    , level = 0
     }
 
 
-updateScore : Score -> Int -> Score
-updateScore { points, lines } clearedLines =
+getAdditionalPoints : Score -> Int -> Int
+getAdditionalPoints score clearedLines =
     let
         -- Taken from https://tetris.wiki/Scoring#Original_Nintendo_scoring_system
-        additionalPoints =
+        clearedLinesFactor =
             case clearedLines of
                 1 ->
                     40
@@ -42,9 +44,31 @@ updateScore { points, lines } clearedLines =
 
                 _ ->
                     0
+
+        levelFactor =
+            max score.level 1
     in
-    { lines = lines + clearedLines
-    , points = points + additionalPoints
+    clearedLinesFactor * levelFactor
+
+
+updateScore : Score -> Int -> Score
+updateScore score clearedLines =
+    let
+        additionalPoints =
+            getAdditionalPoints score clearedLines
+
+        newPoints =
+            score.points + additionalPoints
+
+        newLines =
+            score.lines + clearedLines
+
+        newLevel =
+            score.lines // 10
+    in
+    { lines = newLines
+    , points = newPoints
+    , level = newLevel
     }
 
 
@@ -92,6 +116,7 @@ boxWithText width label value =
 toForm : Int -> Score -> Collage msg
 toForm width score =
     vertical
-        [ boxWithText width "Points" score.points
+        [ boxWithText width "Level" score.level
+        , boxWithText width "Points" score.points
         , boxWithText width "Lines" score.lines
         ]

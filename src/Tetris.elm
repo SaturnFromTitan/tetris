@@ -121,8 +121,13 @@ useIfValid new current =
         current
 
 
-tickDownTetrominoIfNextShift : Model -> Model
-tickDownTetrominoIfNextShift model =
+calculateShiftDelay : Int -> Float
+calculateShiftDelay level =
+    (-(sqrt (toFloat level) / sqrt 15) + 1) * 1000
+
+
+checkTick : Model -> Model
+checkTick model =
     if model.time < model.nextShift then
         model
 
@@ -173,7 +178,7 @@ update msg model =
                     { model | time = newTime }
 
                 newModel_ =
-                    tickDownTetrominoIfNextShift modelWithNewTime
+                    checkTick modelWithNewTime
 
                 newModel =
                     useIfValid newModel_ (spawnTetromino model)

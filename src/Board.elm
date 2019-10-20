@@ -1,4 +1,4 @@
-module Board exposing (Board, addBlock, addTetromino, background, backgroundColor, checkRow, clearLines, clearRow, cols, isInBounds, isIntersecting, isValid, main, new, rows, testBoard, testTetromino, toForm)
+module Board exposing (Board, addBlock, addTetromino, background, backgroundColor, checkRow, clearLines, clearRow, cols, isInBounds, isIntersecting, isValid, new, rows, toForm)
 
 import Block exposing (..)
 import Collage exposing (..)
