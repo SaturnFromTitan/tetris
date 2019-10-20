@@ -3,6 +3,7 @@ module Main exposing (main)
 import Block
 import Board exposing (..)
 import Browser
+import Browser.Events exposing (onAnimationFrameDelta)
 import Collage.Layout exposing (..)
 import Collage.Render exposing (svg)
 import Html exposing (Html, text)
@@ -15,6 +16,7 @@ import Tetromino exposing (..)
 
 type Msg
     = KeyDown RawKey
+    | Frame Float
 
 
 type alias Model =
@@ -25,6 +27,9 @@ type alias Model =
     , falling : Tetromino
     , clearedLines : Int
     , score : Score
+    , time : Float
+    , nextShift : Float
+    , shiftDelay : Float
     }
 
 
@@ -63,6 +68,9 @@ init _ =
       , falling = falling |> Tetromino.shift startingShift
       , clearedLines = 0
       , score = initialScore
+      , time = 0.0
+      , nextShift = 1000.0
+      , shiftDelay = 1000.0
       }
     , Cmd.none
     )
@@ -154,6 +162,28 @@ update msg model =
             , Cmd.none
             )
 
+        Frame delta ->
+            let
+                newTime =
+                    model.time + delta
+
+                newModel =
+                    if newTime < model.nextShift then
+                        { model | time = newTime }
+
+                    else
+                        { model
+                            | time = newTime
+                            , nextShift = newTime + model.shiftDelay
+                            , falling = model.falling |> Tetromino.shift ( 0, -1 )
+                        }
+            in
+            ( useIfValid
+                model
+                newModel
+            , Cmd.none
+            )
+
 
 view : Model -> Html msg
 view model =
@@ -181,6 +211,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Keyboard.downs KeyDown
+        , onAnimationFrameDelta Frame
         ]
 
 
