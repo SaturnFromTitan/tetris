@@ -20,8 +20,7 @@ type Msg
 
 
 type alias Model =
-    { lastKey : Maybe Key
-    , seed : Random.Seed
+    { seed : Random.Seed
     , bag : List Tetromino
     , board : Board
     , falling : Tetromino
@@ -61,8 +60,7 @@ init _ =
         newBag =
             List.drop 1 bag
     in
-    ( { lastKey = Nothing
-      , bag = newBag
+    ( { bag = newBag
       , seed = newSeed
       , board = emptyBoard
       , falling = falling |> Tetromino.shift startingShift
@@ -79,11 +77,6 @@ init _ =
 isValid : Model -> Bool
 isValid model =
     Board.isValid model.falling model.board
-
-
-needSpawn : Model -> Bool
-needSpawn model =
-    model.lastKey == Just Keyboard.ArrowDown && not (isValid model)
 
 
 spawnTetromino : Model -> Model
@@ -120,15 +113,24 @@ spawnTetromino model =
 
 
 useIfValid : Model -> Model -> Model
-useIfValid current new =
+useIfValid new current =
     if isValid new then
         new
 
-    else if needSpawn new then
-        spawnTetromino current
-
     else
         current
+
+
+tickDownTetrominoIfNextShift : Model -> Model
+tickDownTetrominoIfNextShift model =
+    if model.time < model.nextShift then
+        model
+
+    else
+        { model
+            | nextShift = model.time + model.shiftDelay
+            , falling = model.falling |> Tetromino.shift ( 0, -1 )
+        }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -157,8 +159,8 @@ update msg model =
                             model.falling
             in
             ( useIfValid
+                { model | falling = newFalling }
                 model
-                { model | falling = newFalling, lastKey = arrowKey }
             , Cmd.none
             )
 
@@ -167,20 +169,16 @@ update msg model =
                 newTime =
                     model.time + delta
 
-                newModel =
-                    if newTime < model.nextShift then
-                        { model | time = newTime }
+                modelWithNewTime =
+                    { model | time = newTime }
 
-                    else
-                        { model
-                            | time = newTime
-                            , nextShift = newTime + model.shiftDelay
-                            , falling = model.falling |> Tetromino.shift ( 0, -1 )
-                        }
+                newModel_ =
+                    tickDownTetrominoIfNextShift modelWithNewTime
+
+                newModel =
+                    useIfValid newModel_ (spawnTetromino model)
             in
-            ( useIfValid
-                model
-                newModel
+            ( useIfValid newModel model
             , Cmd.none
             )
 
