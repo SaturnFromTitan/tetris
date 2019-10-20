@@ -24,8 +24,8 @@ initialScore =
     }
 
 
-getAdditionalPoints : Score -> Int -> Int
-getAdditionalPoints score clearedLines =
+getAdditionalPoints : Int -> Int -> Int
+getAdditionalPoints level clearedLines =
     let
         -- Taken from https://tetris.wiki/Scoring#Original_Nintendo_scoring_system
         clearedLinesFactor =
@@ -46,7 +46,7 @@ getAdditionalPoints score clearedLines =
                     0
 
         levelFactor =
-            max score.level 1
+            level + 1
     in
     clearedLinesFactor * levelFactor
 
@@ -55,7 +55,7 @@ updateScore : Score -> Int -> Score
 updateScore score clearedLines =
     let
         additionalPoints =
-            getAdditionalPoints score clearedLines
+            getAdditionalPoints score.level clearedLines
 
         newPoints =
             score.points + additionalPoints
@@ -64,7 +64,7 @@ updateScore score clearedLines =
             score.lines + clearedLines
 
         newLevel =
-            score.lines // 10
+            newLines // 10
     in
     { lines = newLines
     , points = newPoints
