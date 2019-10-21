@@ -1,4 +1,4 @@
-module Tetromino exposing (Location, Point, Tetromino, bag, i, j, l, main, o, rotate, rotateLocation, s, shift, t, toForm, toLocation, toPoint, z)
+module Tetromino exposing (Location, Point, Tetromino, bag, i, j, l, o, rotate, rotateLocation, s, shift, t, toForm, toLocation, toPoint, z)
 
 import Block exposing (Block)
 import Collage exposing (..)
@@ -133,16 +133,6 @@ tetrominoes =
 bag : Random.Generator (List Tetromino)
 bag =
     Random.List.shuffle tetrominoes
-
-
-main : Html msg
-main =
-    Random.step bag (Random.initialSeed 43)
-        |> first
-        |> List.head
-        |> Maybe.withDefault i
-        |> toForm
-        |> svg
 
 
 

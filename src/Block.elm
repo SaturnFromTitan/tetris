@@ -1,4 +1,4 @@
-module Block exposing (Block, main, size, toForm)
+module Block exposing (Block, size, toForm)
 
 import Collage exposing (..)
 import Collage.Render exposing (svg)
@@ -28,8 +28,3 @@ toForm block =
             shape |> filled (uniform block.color)
     in
     group [ border, filledShape ]
-
-
-main : Html msg
-main =
-    toForm (Block Color.blue) |> svg
