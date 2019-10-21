@@ -1,9 +1,9 @@
 module ScoreBoard exposing (Score, boxWithText, initialScore, toForm, updateScore)
 
-import Collage exposing (..)
-import Collage.Layout exposing (..)
+import Collage exposing (Collage, LineCap(..), filled, group, outlined, rectangle, rendered, shift, solid, uniform)
+import Collage.Layout exposing (vertical)
 import Collage.Render exposing (svg)
-import Collage.Text exposing (..)
+import Collage.Text exposing (Typeface(..), Weight(..), fromString, large, size, typeface, weight)
 import Color exposing (Color)
 import Html exposing (Html, text)
 import String

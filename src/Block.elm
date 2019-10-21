@@ -1,6 +1,6 @@
 module Block exposing (Block, size, toForm)
 
-import Collage exposing (..)
+import Collage exposing (Collage, filled, group, outlined, solid, square, thin, uniform)
 import Collage.Render exposing (svg)
 import Color exposing (Color)
 import Html exposing (Html)

@@ -1,12 +1,12 @@
 module Board exposing (Board, addBlock, addTetromino, background, backgroundColor, checkRow, clearLines, clearRow, cols, isInBounds, isIntersecting, isValid, new, rows, toForm)
 
-import Block exposing (..)
-import Collage exposing (..)
+import Block exposing (Block)
+import Collage exposing (Collage, filled, group, outlined, rectangle, solid, thick, uniform)
 import Collage.Render exposing (svg)
 import Color exposing (Color)
 import Dict exposing (Dict)
 import Html exposing (Html)
-import Tetromino exposing (..)
+import Tetromino exposing (Location, Tetromino)
 
 
 type alias Board =

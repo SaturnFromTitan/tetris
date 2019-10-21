@@ -1,7 +1,7 @@
 module Tetromino exposing (Location, Point, Tetromino, bag, i, j, l, o, rotate, rotateLocation, s, shift, t, toForm, toLocation, toPoint, z)
 
 import Block exposing (Block)
-import Collage exposing (..)
+import Collage exposing (Collage, group)
 import Collage.Render exposing (svg)
 import Color exposing (Color)
 import Html exposing (Html, text)

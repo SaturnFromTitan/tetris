@@ -1,17 +1,17 @@
 module Main exposing (main)
 
 import Block
-import Board exposing (..)
+import Board exposing (Board, addTetromino, clearLines)
 import Browser
 import Browser.Events exposing (onAnimationFrameDelta)
-import Collage.Layout exposing (..)
+import Collage.Layout exposing (horizontal)
 import Collage.Render exposing (svg)
 import Html exposing (Html, text)
 import Keyboard exposing (Key(..), RawKey)
-import Keyboard.Arrows exposing (..)
+import Keyboard.Arrows exposing (Arrows)
 import Random
-import ScoreBoard exposing (..)
-import Tetromino exposing (..)
+import ScoreBoard exposing (Score, initialScore)
+import Tetromino exposing (Tetromino, rotate)
 
 
 type Msg
