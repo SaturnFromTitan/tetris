@@ -88,6 +88,40 @@ useIfValid new current =
         current
 
 
+tryKicks : List ( Int, Int ) -> Model -> Model -> Model
+tryKicks shifts outOfBoundsModel current =
+    case shifts of
+        [] ->
+            current
+
+        s :: otherShifts ->
+            let
+                shifted =
+                    Tetromino.shift s outOfBoundsModel.falling
+
+                newModel =
+                    { outOfBoundsModel | falling = shifted }
+            in
+            if isValid newModel then
+                newModel
+
+            else
+                tryKicks otherShifts outOfBoundsModel current
+
+
+wallKick : Model -> Model -> Model
+wallKick outOfBoundsModel current =
+    let
+        range =
+            outOfBoundsModel.falling.cols // 2
+
+        shifts =
+            List.range 1 range
+                |> List.concatMap (\n -> [ ( n, 0 ), ( -n, 0 ) ])
+    in
+    tryKicks shifts outOfBoundsModel current
+
+
 spawnTetromino : Model -> Model
 spawnTetromino model =
     let
@@ -146,25 +180,35 @@ update msg model =
                 arrowKey =
                     Keyboard.Arrows.arrowKey key
 
-                newFalling =
+                newModel =
                     case arrowKey of
                         Just Keyboard.ArrowUp ->
-                            model.falling |> rotate
+                            let
+                                rotated =
+                                    { model
+                                        | falling = model.falling |> rotate
+                                    }
+
+                                newModel_ =
+                                    if isValid rotated then
+                                        rotated
+
+                                    else
+                                        wallKick rotated model
+                            in
+                            newModel_
 
                         Just Keyboard.ArrowDown ->
-                            model.falling |> Tetromino.shift ( 0, -1 )
+                            { model | falling = model.falling |> Tetromino.shift ( 0, -1 ) }
 
                         Just Keyboard.ArrowLeft ->
-                            model.falling |> Tetromino.shift ( -1, 0 )
+                            { model | falling = model.falling |> Tetromino.shift ( -1, 0 ) }
 
                         Just Keyboard.ArrowRight ->
-                            model.falling |> Tetromino.shift ( 1, 0 )
+                            { model | falling = model.falling |> Tetromino.shift ( 1, 0 ) }
 
                         _ ->
-                            model.falling
-
-                newModel =
-                    { model | falling = newFalling }
+                            model
             in
             ( useIfValid newModel model
             , Cmd.none

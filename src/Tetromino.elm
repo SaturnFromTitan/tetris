@@ -27,6 +27,8 @@ type alias Tetromino =
     { shape : List Location
     , block : Block
     , pivot : Point
+    , rows : Int
+    , cols : Int
     }
 
 
@@ -185,8 +187,8 @@ rotate tetromino =
     in
     { tetromino
         | shape = newShape
-        , row = tetromino.col
-        , col = tetromino.row
+        , rows = tetromino.cols
+        , cols = tetromino.rows
     }
 
 
