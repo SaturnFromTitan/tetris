@@ -70,6 +70,8 @@ i =
     { shape = [ ( 0, 1 ), ( 0, 0 ), ( 0, -1 ), ( 0, -2 ) ]
     , block = Block Color.lightBlue
     , pivot = ( 0.5, -0.5 )
+    , cols = 1
+    , rows = 4
     }
 
 
@@ -78,6 +80,8 @@ j =
     { shape = [ ( 0, 1 ), ( 0, 0 ), ( 0, -1 ), ( -1, -1 ) ]
     , block = Block Color.darkBlue
     , pivot = ( 0, 0 )
+    , cols = 2
+    , rows = 3
     }
 
 
@@ -86,6 +90,8 @@ l =
     { shape = [ ( 0, 1 ), ( 0, 0 ), ( 0, -1 ), ( 1, -1 ) ]
     , block = Block Color.orange
     , pivot = ( 0, 0 )
+    , cols = 2
+    , rows = 3
     }
 
 
@@ -94,6 +100,8 @@ o =
     { shape = [ ( 0, 1 ), ( 0, 0 ), ( 1, 0 ), ( 1, 1 ) ]
     , block = Block Color.yellow
     , pivot = ( 0.5, 0.5 )
+    , cols = 2
+    , rows = 2
     }
 
 
@@ -102,6 +110,8 @@ s =
     { shape = [ ( 0, 0 ), ( 1, 0 ), ( 1, 1 ), ( 2, 1 ) ]
     , block = Block Color.lightGreen
     , pivot = ( 1, 0 )
+    , cols = 3
+    , rows = 2
     }
 
 
@@ -110,6 +120,8 @@ z =
     { shape = [ ( 0, 1 ), ( 1, 1 ), ( 1, 0 ), ( 2, 0 ) ]
     , block = Block Color.red
     , pivot = ( 1, 0 )
+    , cols = 3
+    , rows = 2
     }
 
 
@@ -118,6 +130,8 @@ t =
     { shape = [ ( 0, 0 ), ( 1, 0 ), ( 2, 0 ), ( 1, 1 ) ]
     , block = Block Color.purple
     , pivot = ( 1, 0 )
+    , cols = 3
+    , rows = 2
     }
 
 
@@ -171,6 +185,8 @@ rotate tetromino =
     in
     { tetromino
         | shape = newShape
+        , row = tetromino.col
+        , col = tetromino.row
     }
 
 
