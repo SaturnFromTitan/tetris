@@ -4,7 +4,7 @@ import Block
 import Board exposing (Board, addTetromino, clearLines)
 import Browser
 import Browser.Events exposing (onAnimationFrameDelta)
-import Collage.Layout exposing (horizontal)
+import Collage.Layout exposing (horizontal, vertical)
 import Collage.Render exposing (svg)
 import Html exposing (Html, text)
 import Keyboard exposing (Key(..), RawKey)
@@ -12,6 +12,7 @@ import Keyboard.Arrows exposing (Arrows)
 import Random
 import ScoreBoard exposing (Score, initialScore)
 import Tetromino exposing (Tetromino, rotate)
+import Upcoming exposing (toForm)
 
 
 type Msg
@@ -244,13 +245,24 @@ view model =
         sideBarWidth =
             6 * round Block.size
 
+        upcomingForm =
+            List.head model.bag
+                |> Maybe.withDefault Tetromino.i
+                |> Upcoming.toForm sideBarWidth
+
         scoreBoardForm =
             model.score
                 |> ScoreBoard.toForm sideBarWidth
+
+        sideBarForm =
+            vertical
+                [ upcomingForm
+                , scoreBoardForm
+                ]
     in
     horizontal
         [ boardForm
-        , scoreBoardForm
+        , sideBarForm
         ]
         |> svg
 
