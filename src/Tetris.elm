@@ -79,6 +79,15 @@ isValid model =
     Board.isValid model.falling model.board
 
 
+useIfValid : Model -> Model -> Model
+useIfValid new current =
+    if isValid new then
+        new
+
+    else
+        current
+
+
 spawnTetromino : Model -> Model
 spawnTetromino model =
     let
@@ -110,15 +119,6 @@ spawnTetromino model =
         , score = ScoreBoard.updateScore model.score numClearedLines
         , clearedLines = model.clearedLines + numClearedLines
     }
-
-
-useIfValid : Model -> Model -> Model
-useIfValid new current =
-    if isValid new then
-        new
-
-    else
-        current
 
 
 calculateShiftDelay : Int -> Float
@@ -162,10 +162,11 @@ update msg model =
 
                         _ ->
                             model.falling
+
+                newModel =
+                    { model | falling = newFalling }
             in
-            ( useIfValid
-                { model | falling = newFalling }
-                model
+            ( useIfValid newModel model
             , Cmd.none
             )
 
