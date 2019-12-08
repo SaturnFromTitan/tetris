@@ -126,21 +126,22 @@ wallKick outOfBoundsModel current =
 spawnTetromino : Model -> Model
 spawnTetromino model =
     let
-        ( bag_, seed_ ) =
-            if List.isEmpty model.bag then
-                Random.step Tetromino.bag model.seed
-
-            else
-                ( model.bag, model.seed )
-
-        -- TODO: Replace Maybe.withDefault
+        -- the default case doesn't trigger as an empty bag is refreshed after
+        -- taking one out. See below.
         newFalling =
-            List.head bag_
+            List.head model.bag
                 |> Maybe.withDefault Tetromino.i
                 |> Tetromino.shift startingShift
 
         newBag =
-            List.drop 1 bag_
+            List.drop 1 model.bag
+
+        ( newBag_, seed_ ) =
+            if List.isEmpty newBag then
+                Random.step Tetromino.bag model.seed
+
+            else
+                ( newBag, model.seed )
 
         ( numClearedLines, newBoard ) =
             addTetromino model.falling model.board
@@ -150,7 +151,7 @@ spawnTetromino model =
         | falling = newFalling
         , board = newBoard
         , seed = seed_
-        , bag = newBag
+        , bag = newBag_
         , score = ScoreBoard.updateScore model.score numClearedLines
         , clearedLines = model.clearedLines + numClearedLines
     }
